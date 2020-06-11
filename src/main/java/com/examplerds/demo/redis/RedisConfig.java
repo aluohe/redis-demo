@@ -1,5 +1,8 @@
 package com.examplerds.demo.redis;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -31,6 +34,19 @@ public class RedisConfig {
 
     }*/
 
+    @Autowired
+    LettuceConnectionFactory lettuceConnectionFactory;
+
+
+    @Bean
+    public RedisClient<String, Object> client() {
+        RedisClient client = new RedisClient();
+        client.setDefaultRedisFactory(lettuceConnectionFactory);
+        client.setKeySerializer(new StringRedisSerializer());
+        client.setValueSerializer(new StringRedisSerializer());
+        return client;
+
+    }
 
 
    /* @Bean

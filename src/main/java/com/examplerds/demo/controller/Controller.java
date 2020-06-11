@@ -1,12 +1,9 @@
-package com.examplerds.demo;
+package com.examplerds.demo.controller;
 
+import com.examplerds.demo.aop.RedisSource;
 import com.examplerds.demo.redis.RedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.RedisPassword;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,26 +24,42 @@ public class Controller {
     @Autowired
     RedisClient client;
 
+
     @GetMapping("/redis-test")
+    @RedisSource
     public void test() {
 
-        client.setValueSerializer(new StringRedisSerializer());
-        client.setKeySerializer(new StringRedisSerializer());
-//        LettuceConnectionFactory factory = lettuceConnectionFactory();
-//        factory.afterPropertiesSet();
-//        factory.resetConnection();
 
-//        client.setConnectionFactory(factory);
-        Set keys =client.keys("*");
+     /*   try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("sleep out");*/
+
+        Set keys = client.keys("*");
+
         System.out.println(keys);
 
-        RedisClient.setLocal("wdd");
+    }
 
+    @GetMapping("/redis-test1")
+    @RedisSource("aluohe")
+    public void test1() {
 
-        Set keys1 = client.keys("*");
+        Set keys = client.keys("*");
 
+        System.out.println(keys);
 
-        System.out.println(keys1);
+    }
+
+    @GetMapping("/redis-test2")
+    @RedisSource("wdd")
+    public void test2() {
+        Set keys = client.keys("*");
+        System.out.println(keys);
+
     }
 
    /* LettuceConnectionFactory lettuceConnectionFactory() {
