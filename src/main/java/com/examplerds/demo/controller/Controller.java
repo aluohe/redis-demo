@@ -1,9 +1,9 @@
 package com.examplerds.demo.controller;
 
 import com.examplerds.demo.aop.RedisSource;
-import com.examplerds.demo.redis.RedisClient;
+import com.examplerds.demo.redis.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +22,10 @@ import java.util.Set;
 public class Controller {
 
     @Autowired
-    RedisClient client;
+    RedisTemplate redisTemplate;
+
+    @Autowired
+    RedisUtil redisUtil;
 
 
     @GetMapping("/redis-test")
@@ -38,8 +41,8 @@ public class Controller {
 
         System.out.println("sleep out");*/
 
-        Set keys = client.keys("*");
-
+//        Set keys = redisTemplate.keys("*");
+        Set keys = redisUtil.keys();
         System.out.println(keys);
 
     }
@@ -48,7 +51,9 @@ public class Controller {
     @RedisSource("aluohe")
     public void test1() {
 
-        Set keys = client.keys("*");
+//        Set keys = redisTemplate.keys("*");
+
+        Set keys = redisUtil.keys();
 
         System.out.println(keys);
 
@@ -57,7 +62,9 @@ public class Controller {
     @GetMapping("/redis-test2")
     @RedisSource("wdd")
     public void test2() {
-        Set keys = client.keys("*");
+//        Set keys = redisTemplate.keys("*");
+        Set keys = redisUtil.keys();
+
         System.out.println(keys);
 
     }

@@ -68,12 +68,6 @@ public class RedisClient<K, V> extends RedisTemplate<K, V> implements AbstractRo
 
     @Override
     public RedisConnectionFactory getConnectionFactory() {
-        /*
-        *  if (local.get() == null) {
-            return map.get("aluohe");
-        } else {
-            return map.get(local.get());
-        }*/
         return determineTargetDataSource();
     }
 
