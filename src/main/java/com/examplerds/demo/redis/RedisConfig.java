@@ -38,7 +38,7 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
-        RedisClient client = new RedisClient();
+        RedisRoutingDataSource client = new RedisRoutingDataSource(RedisSourceContextHolder::get);
         client.setDefaultRedisFactory(lettuceConnectionFactory);
         addMultiDataSource(client);
         client.setKeySerializer(new StringRedisSerializer());
@@ -47,15 +47,15 @@ public class RedisConfig {
 
     }
 
-    private void addMultiDataSource(RedisClient client) {
+    private void addMultiDataSource(RedisRoutingDataSource client) {
         LettuceConnectionFactory factory = lettuceConnectionFactory(1, "localhost", RedisPassword.none());
         factory.afterPropertiesSet();
         LettuceConnectionFactory factory1 = lettuceConnectionFactory(4, "192.168.2.31", RedisPassword.of("123456"));
         factory1.afterPropertiesSet();
-        client.addFactory("aluohe", factory);
-        client.addFactory("wdd", factory1);
+        client.addRedisDataSource("aluohe", factory);
+        client.addRedisDataSource("wdd", factory1);
         //默认数据源 可加可不加
-        client.addFactory("default", lettuceConnectionFactory);
+        client.addRedisDataSource("default", lettuceConnectionFactory);
     }
 
     public static LettuceConnectionFactory lettuceConnectionFactory(Integer dbIndex, String hostName, RedisPassword password) {

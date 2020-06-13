@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * @author aluohe
@@ -16,11 +17,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @modified_by
  * @version:
  */
-public abstract class AbstractRoutingDataSource<K, V> extends RedisTemplate<K, V> {
+public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
 
     private RedisConnectionFactory defaultRedisFactory;
 
     private Map<String, RedisConnectionFactory> factoryMap;
+
+
+    private Supplier<String> routerI;
+
+    public RedisRoutingDataSource(Supplier<String> routerI) {
+        this.routerI = routerI;
+    }
+
+    public RedisRoutingDataSource() {
+    }
 
     protected static final Map<String, RedisConnectionFactory> resolvedDataSources = new ConcurrentHashMap<>();
 
@@ -30,6 +41,10 @@ public abstract class AbstractRoutingDataSource<K, V> extends RedisTemplate<K, V
 
     public void setTargetRedisFactory(Map<String, RedisConnectionFactory> factoryMap) {
         this.factoryMap = factoryMap;
+    }
+
+    public void addRedisDataSource(String key, RedisConnectionFactory factory) {
+        resolvedDataSources.put(key, factory);
     }
 
     @Override
@@ -42,7 +57,7 @@ public abstract class AbstractRoutingDataSource<K, V> extends RedisTemplate<K, V
 
     protected RedisConnectionFactory determineTargetDataSource() {
         Assert.notNull(resolvedDataSources, "DataSource router not initialized");
-        String lookupKey = this.determineCurrentLookupKey();
+        String lookupKey = this.routerI.get();
         RedisConnectionFactory dataSource;
         if (lookupKey == null) {
             dataSource = this.defaultRedisFactory;
@@ -64,5 +79,5 @@ public abstract class AbstractRoutingDataSource<K, V> extends RedisTemplate<K, V
         return determineTargetDataSource();
     }
 
-    protected abstract String determineCurrentLookupKey();
+
 }
