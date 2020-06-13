@@ -40,7 +40,7 @@ public class RedisConfig {
     public RedisTemplate<String, Object> redisTemplate() {
         RedisRoutingDataSource client = new RedisRoutingDataSource(RedisSourceContextHolder::get);
 //        client.setDefaultRedisFactory(lettuceConnectionFactory);
-//        addMultiDataSource(client);
+        addMultiDataSource(client);
         client.setConnectionFactory(lettuceConnectionFactory);
         client.setKeySerializer(new StringRedisSerializer());
         client.setValueSerializer(new StringRedisSerializer());

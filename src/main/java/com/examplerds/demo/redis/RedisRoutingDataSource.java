@@ -35,7 +35,7 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
 
     protected static final Map<String, RedisConnectionFactory> resolvedDataSources = new ConcurrentHashMap<>();
 
-    public void setDefaultRedisFactory(RedisConnectionFactory defaultRedisFactory) {
+    private void setDefaultRedisFactory(RedisConnectionFactory defaultRedisFactory) {
         this.defaultRedisFactory = defaultRedisFactory;
     }
 
