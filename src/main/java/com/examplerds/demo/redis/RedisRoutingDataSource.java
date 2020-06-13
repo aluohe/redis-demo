@@ -46,14 +46,6 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
         resolvedDataSources.put(key, factory);
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-        if (factoryMap != null && !factoryMap.isEmpty()) {
-            resolvedDataSources.putAll(factoryMap);
-        }
-    }
-
     protected RedisConnectionFactory determineTargetDataSource() {
         Assert.notNull(resolvedDataSources, "DataSource router not initialized");
         String lookupKey = this.routerI.get();
@@ -79,7 +71,11 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
     }
 
     @Override
-    public void setConnectionFactory(RedisConnectionFactory connectionFactory) {
-        super.setConnectionFactory(connectionFactory);
+    public void afterPropertiesSet() {
+        super.afterPropertiesSet();
+        if (factoryMap != null && !factoryMap.isEmpty()) {
+            resolvedDataSources.putAll(factoryMap);
+        }
     }
+
 }
