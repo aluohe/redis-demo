@@ -25,65 +25,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version:
  */
 
-public class RedisClient<K, V> extends RedisTemplate<K, V> implements AbstractRoutingDataSource {
+public class RedisClient<K, V> extends AbstractRoutingDataSource<K, V> {
 
-    private RedisConnectionFactory defaultRedisFactory;
+    private Map<String, RedisConnectionFactory> factoryMap;
 
-    private static final Map<String, RedisConnectionFactory> resolvedDataSources = new ConcurrentHashMap<>();
-
-    public void setDefaultRedisFactory(RedisConnectionFactory defaultRedisFactory) {
-        this.defaultRedisFactory = defaultRedisFactory;
-        resolvedDataSources.put("default", this.defaultRedisFactory);
+    public RedisClient() {
+        factoryMap = new HashMap<>();
+        super.setTargetRedisFactory(factoryMap);
     }
 
-    protected RedisConnectionFactory determineTargetDataSource() {
-        Assert.notNull(resolvedDataSources, "DataSource router not initialized");
-        String lookupKey = this.determineCurrentLookupKey();
-        RedisConnectionFactory dataSource;
-        if (lookupKey == null) {
-            dataSource = this.defaultRedisFactory;
-        } else {
-            dataSource = resolvedDataSources.get(lookupKey);
-            if (dataSource == null) {
-                dataSource = this.defaultRedisFactory;
-            }
-        }
-        if (dataSource == null) {
-            throw new IllegalStateException("Cannot determine target DataSource for lookup key [" + lookupKey + "]");
-        } else {
-            return dataSource;
-        }
+    public <K extends String, T extends RedisConnectionFactory> void addFactory(K key, T t) {
+        factoryMap.put(key, t);
     }
 
-
-    static {
-        LettuceConnectionFactory factory = lettuceConnectionFactory(1, "localhost", RedisPassword.none());
-        factory.afterPropertiesSet();
-        LettuceConnectionFactory factory1 = lettuceConnectionFactory(4, "192.168.2.31", RedisPassword.of("123456"));
-        factory1.afterPropertiesSet();
-        resolvedDataSources.put("aluohe", factory);
-        resolvedDataSources.put("wdd", factory1);
-    }
-
-
-    @Override
-    public RedisConnectionFactory getConnectionFactory() {
-        return determineTargetDataSource();
-    }
-
-
-    public static LettuceConnectionFactory lettuceConnectionFactory(Integer dbIndex, String hostName, RedisPassword password) {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-        redisStandaloneConfiguration.setDatabase(dbIndex);
-        redisStandaloneConfiguration.setHostName(hostName);
-        redisStandaloneConfiguration.setPort(6379);
-        redisStandaloneConfiguration.setPassword(password);
-
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder lettuceClientConfigurationBuilder = LettuceClientConfiguration.builder();
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisStandaloneConfiguration,
-                lettuceClientConfigurationBuilder.build());
-        return factory;
-    }
 
     @Override
     public String determineCurrentLookupKey() {
