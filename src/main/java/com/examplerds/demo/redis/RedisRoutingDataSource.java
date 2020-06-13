@@ -79,5 +79,8 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
         return determineTargetDataSource();
     }
 
-
+    @Override
+    public void setConnectionFactory(RedisConnectionFactory connectionFactory) {
+        this.setDefaultRedisFactory(connectionFactory);
+    }
 }
