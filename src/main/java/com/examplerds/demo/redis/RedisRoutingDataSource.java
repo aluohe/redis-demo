@@ -19,10 +19,15 @@ import java.util.function.Supplier;
  */
 public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
 
-    private RedisConnectionFactory defaultRedisFactory;
-
+    /**
+     * 初始化使用
+     */
     private Map<String, RedisConnectionFactory> factoryMap;
 
+    /**
+     * 服务运行中动态加载
+     */
+    protected static final Map<String, RedisConnectionFactory> resolvedDataSources = new ConcurrentHashMap<>();
 
     private Supplier<String> routerI;
 
@@ -31,12 +36,6 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
     }
 
     public RedisRoutingDataSource() {
-    }
-
-    protected static final Map<String, RedisConnectionFactory> resolvedDataSources = new ConcurrentHashMap<>();
-
-    private void setDefaultRedisFactory(RedisConnectionFactory defaultRedisFactory) {
-        this.defaultRedisFactory = defaultRedisFactory;
     }
 
     public void setTargetRedisFactory(Map<String, RedisConnectionFactory> factoryMap) {
@@ -60,11 +59,11 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
         String lookupKey = this.routerI.get();
         RedisConnectionFactory dataSource;
         if (lookupKey == null) {
-            dataSource = this.defaultRedisFactory;
+            dataSource = super.getConnectionFactory();
         } else {
             dataSource = resolvedDataSources.get(lookupKey);
             if (dataSource == null) {
-                dataSource = this.defaultRedisFactory;
+                dataSource = super.getConnectionFactory();
             }
         }
         if (dataSource == null) {
@@ -81,6 +80,6 @@ public class RedisRoutingDataSource<K, V> extends RedisTemplate<K, V> {
 
     @Override
     public void setConnectionFactory(RedisConnectionFactory connectionFactory) {
-        this.setDefaultRedisFactory(connectionFactory);
+        super.setConnectionFactory(connectionFactory);
     }
 }
